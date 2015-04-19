@@ -5,6 +5,9 @@
 # Local Maven repo on filesystem
 mavenLocal:~/.m2/repository
 
+#Pentaho nexus
+maven:http://nexus.pentaho.org/content/groups/omni
+
 # Maven central
 maven:http://repo2.maven.org/maven2
 

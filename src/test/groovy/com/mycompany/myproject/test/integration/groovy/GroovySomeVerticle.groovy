@@ -1,4 +1,4 @@
-package com.mycompany.myproject.test.integration.groovy
+package com.github.brosander.kettle.vertx.test.integration.groovy
 
 import org.vertx.groovy.platform.Verticle
 

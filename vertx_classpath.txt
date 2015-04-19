@@ -1,0 +1,7 @@
+src/main/resources
+bin
+out/production/kettle-vertx
+out/test/kettle-vertx
+build/deps
+build/classes/main
+build/resources/main
