@@ -1,14 +1,11 @@
 package com.github.brosander.kettle.vertx.namespace.kettle;
 
-import com.github.brosander.kettle.vertx.namespace.Action;
-import com.github.brosander.kettle.vertx.namespace.BaseNamespace;
 import com.github.brosander.kettle.vertx.namespace.Namespace;
 import com.github.brosander.kettle.vertx.namespace.factories.NamespaceFactory;
+import com.github.brosander.kettle.vertx.namespace.generic.ActionHandlerMap;
 import com.github.brosander.kettle.vertx.namespace.generic.ActionNamespace;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,10 +18,10 @@ public class StepMetasNamespace extends ActionNamespace {
     private final TransMeta transMeta;
     private final NamespaceFactory namespaceFactory;
 
-    public StepMetasNamespace(String prefix, String name, TransMeta transMeta, NamespaceFactory namespaceFactory) {
-        super(prefix, name);
+    public StepMetasNamespace(String prefix, String name, TransMeta transMeta) {
+        super(prefix, name, new ActionHandlerMap.Builder().build());
         this.transMeta = transMeta;
-        this.namespaceFactory = namespaceFactory;
+        this.namespaceFactory = new StepMetaNamespace.Factory();
     }
 
     @Override
@@ -47,8 +44,11 @@ public class StepMetasNamespace extends ActionNamespace {
         return stepNames;
     }
 
-    @Action
-    public void create(String stepMetaName, Message<JsonObject> message) {
+    public static class Factory implements NamespaceFactory {
 
+        @Override
+        public Namespace create(String prefix, String name, Object object) {
+            return new StepMetasNamespace(prefix, name, (TransMeta) object);
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.vertx.java.core.json.JsonObject;
  * Created by bryan on 4/18/15.
  */
 public abstract class BaseNamespace implements HasChildNamespaces, Namespace {
+    public static final String NO_HANDLER_FOUND_IN_NAMESPACE = "No handler found in namespace ";
     private final String prefix;
     private final String name;
 
@@ -30,13 +31,9 @@ public abstract class BaseNamespace implements HasChildNamespaces, Namespace {
         return prefix + "." + name;
     }
 
-    protected Object getObject() {
-        return null;
-    }
-
     @Override
-    public boolean handle(Message<JsonObject> message) {
-        message.fail(405, "No handler found in namespace " + prefix + "." + name + " for message " + message.body().encodePrettily() );
+    public boolean handle(Message<JsonObject> message) throws ActionException{
+        message.fail(405, NO_HANDLER_FOUND_IN_NAMESPACE + prefix + "." + name + " for message " + message.body().encodePrettily() );
         return true;
     }
 }

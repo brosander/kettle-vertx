@@ -9,9 +9,7 @@
 
 
 import com.github.brosander.kettle.vertx.KettleVerticle
-import com.github.brosander.kettle.vertx.namespace.action.ActionHandler
-import com.github.brosander.kettle.vertx.namespace.generic.ActionMapNamespace
-import com.github.brosander.kettle.vertx.namespace.kettle.TransMetasActionMapNamespace
+import com.github.brosander.kettle.vertx.namespace.kettle.TransMetasNamespace
 import org.vertx.groovy.testtools.VertxTests
 
 import static org.vertx.testtools.VertxAssert.*
@@ -22,10 +20,10 @@ import static org.vertx.testtools.VertxAssert.*
 def testCreateTransMeta() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'create', 'namespace': ['transMetas']], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasActionMapNamespace.SUCCESSFULLY_CREATED_TRANS_META))
+            assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
             vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'delete', 'namespace': ['transMetas']], { reply2 ->
                 try {
-                    assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetasActionMapNamespace.SUCCESSFULLY_REMOVED_TRANS_META))
+                    assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_REMOVED_TRANS_META))
                 } finally {
                     testComplete();
                 }
@@ -39,7 +37,7 @@ def testCreateTransMeta() {
 def testCreateTransMetaFilenameNoFilename() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'namespace': ['transMetas']], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasActionMapNamespace.MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE))
+            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE))
         } finally {
             testComplete()
         }
@@ -49,7 +47,7 @@ def testCreateTransMetaFilenameNoFilename() {
 def testCreateTransMetaFilenameNoFile() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'fake_file.ktr', 'namespace': ['transMetas']], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasActionMapNamespace.ERROR_LOADING_TRANSFORMATION))
+            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.ERROR_LOADING_TRANSFORMATION))
         } finally {
             testComplete()
         }
@@ -59,7 +57,7 @@ def testCreateTransMetaFilenameNoFile() {
 def testDeleteTransMetaNotExisting() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'nonExistentTrans', 'action': 'delete', 'namespace': ['transMetas']], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasActionMapNamespace.TRANS_META_NOT_FOUND))
+            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.TRANS_META_NOT_FOUND))
         } finally {
             testComplete()
         }
@@ -69,7 +67,7 @@ def testDeleteTransMetaNotExisting() {
 def testNoName() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['namespace': ['transMetas']], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(ActionHandler.MUST_SPECIFY_NAME_TO_OPERATE_ON))
+            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.NO_HANDLER_FOUND_IN_NAMESPACE))
         } finally {
             testComplete()
         }

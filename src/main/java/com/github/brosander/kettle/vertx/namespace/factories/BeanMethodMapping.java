@@ -18,22 +18,10 @@ public class BeanMethodMapping {
     private final Set<String> selfManagingProperties;
     private final Map<String, Method> methodMap;
 
-    public BeanMethodMapping(Class clazz, Set<String> propertyNames) {
-        this(clazz, propertyNames, new HashMap<String, String>(), new HashSet<String>());
-    }
-
-    public BeanMethodMapping(Class clazz, Set<String> propertyNames, Set<String> selfManagingProperties) {
-        this(clazz, propertyNames, new HashMap<String, String>(), selfManagingProperties);
-    }
-
     public BeanMethodMapping(Class clazz, Set<String> propertyNames, Map<String, String> propertyNameToMethodMap, Set<String> selfManagingProperties) {
-        this(clazz, getMethods(clazz, propertyNames, propertyNameToMethodMap), selfManagingProperties);
-    }
-
-    public BeanMethodMapping(Class clazz, Map<String, Method> methodMap, Set<String> selfManagingProperties) {
         this.clazz = clazz;
         this.selfManagingProperties = selfManagingProperties;
-        this.methodMap = methodMap;
+        this.methodMap = getMethods(clazz, propertyNames, propertyNameToMethodMap);
     }
 
     private static Map<String, Method> getMethods(Class<?> clazz, Set<String> propertyNames, Map<String, String> propertyNameToMethodMap) {
@@ -72,5 +60,36 @@ public class BeanMethodMapping {
 
     public Set<String> getSelfManagingProperties() {
         return selfManagingProperties;
+    }
+
+    public static class Builder {
+        private final Class clazz;
+        private final Set<String> properties = new HashSet<>();
+        private final Set<String> selfManagingProperties = new HashSet<>();
+        private final Map<String, String> methodMap = new HashMap<>();
+
+        public Builder(Class clazz) {
+            this.clazz = clazz;
+        }
+
+        public Builder addProperty(String name) {
+            properties.add(name);
+            return this;
+        }
+
+        public Builder addSelfManagingProperty(String name) {
+            selfManagingProperties.add(name);
+            properties.add(name);
+            return this;
+        }
+
+        public Builder addGetterMethod(String name, String methodName) {
+            methodMap.put(name, methodName);
+            return this;
+        }
+
+        public BeanMethodMapping build() {
+            return new BeanMethodMapping(clazz, new HashSet<>(properties), new HashMap<>(methodMap), new HashSet<>(selfManagingProperties));
+        }
     }
 }

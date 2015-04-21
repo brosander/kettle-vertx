@@ -2,6 +2,7 @@ package com.github.brosander.kettle.vertx.namespace.generic;
 
 import com.github.brosander.kettle.vertx.namespace.BaseNamespace;
 import com.github.brosander.kettle.vertx.namespace.Namespace;
+import com.github.brosander.kettle.vertx.namespace.factories.BeanMethodMapping;
 import com.github.brosander.kettle.vertx.namespace.factories.NamespaceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,12 @@ public class BeanNamespace extends BaseNamespace {
     private final Map<String, Method> propertyMap;
     private final NamespaceFactory namespaceFactory;
 
-    public BeanNamespace(String prefix, String name, Object object, Set<String> selfManagingProperties, Map<String, Method> propertyMap, NamespaceFactory namespaceFactory) {
+    public BeanNamespace(String prefix, String name, Object object, NamespaceFactory namespaceFactory, BeanMethodMapping beanMethodMapping) {
         super(prefix, name);
         this.object = object;
-        this.selfManagingProperties = selfManagingProperties;
+        this.selfManagingProperties = beanMethodMapping.getSelfManagingProperties();
         this.namespaceFactory = namespaceFactory;
-        this.propertyMap = new HashMap<>(propertyMap);
+        this.propertyMap = new HashMap<>(beanMethodMapping.getMethodMap());
     }
 
     @Override
