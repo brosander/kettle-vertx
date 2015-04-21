@@ -37,7 +37,7 @@ def testCreateTransMeta() {
 }
 
 def testCreateTransMetaFilenameNoFilename() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'create', 'source': 'filename', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'namespace': ['transMetas']], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasActionMapNamespace.MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE))
         } finally {
@@ -47,7 +47,7 @@ def testCreateTransMetaFilenameNoFilename() {
 }
 
 def testCreateTransMetaFilenameNoFile() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'create', 'source': 'filename', 'filename': 'fake_file.ktr', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'fake_file.ktr', 'namespace': ['transMetas']], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasActionMapNamespace.ERROR_LOADING_TRANSFORMATION))
         } finally {
