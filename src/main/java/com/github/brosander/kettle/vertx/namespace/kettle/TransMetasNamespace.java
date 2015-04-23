@@ -1,7 +1,7 @@
 package com.github.brosander.kettle.vertx.namespace.kettle;
 
 import com.github.brosander.kettle.vertx.namespace.ActionException;
-import com.github.brosander.kettle.vertx.namespace.HasActions;
+import com.github.brosander.kettle.vertx.namespace.ActionHandler;
 import com.github.brosander.kettle.vertx.namespace.Namespace;
 import com.github.brosander.kettle.vertx.namespace.factories.NamespaceFactory;
 import com.github.brosander.kettle.vertx.namespace.generic.ActionHandlerMap;
@@ -26,7 +26,7 @@ public class TransMetasNamespace extends ActionMapNamespace {
     public static final String ERROR_LOADING_TRANSFORMATION = "Error loading transformation ";
 
     public TransMetasNamespace(String prefix, String name, final Map<String, TransMeta> transMetaMap) {
-        super(prefix, name, transMetaMap, null, new ActionHandlerMap.Builder().addActionHandler("create", new HasActions() {
+        super(prefix, name, transMetaMap, new TransMetaNamespace.Factory(), new ActionHandlerMap.Builder().addActionHandler("create", new ActionHandler() {
 
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {
@@ -37,7 +37,7 @@ public class TransMetasNamespace extends ActionMapNamespace {
                 message.reply(SUCCESSFULLY_CREATED_TRANS_META + transName);
                 return true;
             }
-        }).addActionHandler("loadFile", new HasActions() {
+        }).addActionHandler("loadFile", new ActionHandler() {
 
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {
@@ -56,7 +56,7 @@ public class TransMetasNamespace extends ActionMapNamespace {
                     throw new ActionException(500, ERROR_LOADING_TRANSFORMATION + e.getMessage());
                 }
             }
-        }).addActionHandler("delete", new HasActions() {
+        }).addActionHandler("delete", new ActionHandler() {
 
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {

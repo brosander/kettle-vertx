@@ -6,6 +6,6 @@ import org.vertx.java.core.json.JsonObject;
 /**
  * Created by bryan on 4/19/15.
  */
-public interface HasActions {
+public interface ActionHandler {
     boolean handle(Message<JsonObject> message) throws ActionException;
 }

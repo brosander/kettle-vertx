@@ -29,7 +29,7 @@ def testCreateTransMeta() {
                 }
             })
         } catch (Exception e) {
-            testComplete()
+            handleThrowable(e)
         }
     })
 }
@@ -48,6 +48,16 @@ def testCreateTransMetaFilenameNoFile() {
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'fake_file.ktr', 'namespace': ['transMetas']], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.ERROR_LOADING_TRANSFORMATION))
+        } finally {
+            testComplete()
+        }
+    })
+}
+
+def testCreateTransMetaFilename() {
+    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr', 'namespace': ['transMetas']], { reply ->
+        try {
+            assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
         } finally {
             testComplete()
         }
