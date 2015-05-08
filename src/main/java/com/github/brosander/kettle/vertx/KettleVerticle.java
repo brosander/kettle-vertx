@@ -23,11 +23,11 @@ public class KettleVerticle extends Verticle {
     private final Namespace rootNamespace;
 
     public KettleVerticle() {
-        this(new RootNamespace(new HashMap<String, Object>()));
+        this(null);
     }
 
     public KettleVerticle(Namespace rootNamespace) {
-        this.rootNamespace = rootNamespace;
+        this.rootNamespace = rootNamespace == null ? new RootNamespace(vertx, new HashMap<String, Object>()) : rootNamespace;
     }
 
     @Override

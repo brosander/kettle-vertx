@@ -4,6 +4,7 @@ import com.github.brosander.kettle.vertx.namespace.ActionException;
 import com.github.brosander.kettle.vertx.namespace.ActionHandler;
 import com.github.brosander.kettle.vertx.namespace.factories.BeanMethodMapping;
 import com.github.brosander.kettle.vertx.namespace.factories.NamespaceFactory;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
@@ -13,8 +14,8 @@ import org.vertx.java.core.json.JsonObject;
 public class ActionBeanNamespace extends BeanNamespace {
     private final ActionHandler actionHandler;
 
-    public ActionBeanNamespace(String prefix, String name, Object object, NamespaceFactory namespaceFactory, BeanMethodMapping beanMethodMapping, ActionHandler actionHandler) {
-        super(prefix, name, object, namespaceFactory, beanMethodMapping);
+    public ActionBeanNamespace(Vertx vertx, String prefix, String name, Object object, NamespaceFactory namespaceFactory, BeanMethodMapping beanMethodMapping, ActionHandler actionHandler) {
+        super(vertx, prefix, name, object, namespaceFactory, beanMethodMapping);
         this.actionHandler = actionHandler;
     }
 

@@ -8,6 +8,7 @@ import com.github.brosander.kettle.vertx.namespace.generic.ActionHandlerMap;
 import com.github.brosander.kettle.vertx.namespace.generic.ActionMapNamespace;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.trans.TransMeta;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
@@ -25,8 +26,8 @@ public class TransMetasNamespace extends ActionMapNamespace {
     public static final String MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE = "Must specify filename to load for filename trans create";
     public static final String ERROR_LOADING_TRANSFORMATION = "Error loading transformation ";
 
-    public TransMetasNamespace(String prefix, String name, final Map<String, TransMeta> transMetaMap) {
-        super(prefix, name, transMetaMap, new TransMetaNamespace.Factory(), new ActionHandlerMap.Builder().addActionHandler("create", new ActionHandler() {
+    public TransMetasNamespace(Vertx vertx, String prefix, String name, final Map<String, TransMeta> transMetaMap) {
+        super(vertx, prefix, name, transMetaMap, new TransMetaNamespace.Factory(), new ActionHandlerMap.Builder().addActionHandler("create", new ActionHandler() {
 
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {
@@ -83,8 +84,8 @@ public class TransMetasNamespace extends ActionMapNamespace {
     public static final class Factory implements NamespaceFactory {
 
         @Override
-        public Namespace create(String prefix, String name, Object object) {
-            return new TransMetasNamespace(prefix, name, (Map<String, TransMeta>) object);
+        public Namespace create(Vertx vertx, String prefix, String name, Object object) {
+            return new TransMetasNamespace(vertx, prefix, name, (Map<String, TransMeta>) object);
         }
     }
 }

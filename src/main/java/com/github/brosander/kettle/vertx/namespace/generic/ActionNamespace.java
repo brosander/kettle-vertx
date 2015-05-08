@@ -3,6 +3,7 @@ package com.github.brosander.kettle.vertx.namespace.generic;
 import com.github.brosander.kettle.vertx.namespace.ActionException;
 import com.github.brosander.kettle.vertx.namespace.BaseNamespace;
 import com.github.brosander.kettle.vertx.namespace.ActionHandler;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
@@ -12,8 +13,8 @@ import org.vertx.java.core.json.JsonObject;
 public abstract class ActionNamespace extends BaseNamespace {
     private final ActionHandler actionHandler;
 
-    public ActionNamespace(String prefix, String name, ActionHandler actionHandler) {
-        super(prefix, name);
+    public ActionNamespace(Vertx vertx, String prefix, String name, ActionHandler actionHandler) {
+        super(vertx, prefix, name);
         this.actionHandler = actionHandler;
     }
 

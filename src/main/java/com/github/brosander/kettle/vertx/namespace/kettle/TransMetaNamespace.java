@@ -10,7 +10,9 @@ import com.github.brosander.kettle.vertx.namespace.generic.ActionBeanNamespace;
 import com.github.brosander.kettle.vertx.namespace.generic.ActionHandlerMap;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.trans.Trans;
+import org.pentaho.di.trans.TransListener;
 import org.pentaho.di.trans.TransMeta;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
@@ -22,13 +24,29 @@ public class TransMetaNamespace extends ActionBeanNamespace {
     public static final String GET_STEPS = "getSteps";
     public static final String SUCCESSFULLY_STARTED_TRANSFORMATION = "Successfully started transformation ";
 
-    public TransMetaNamespace(String prefix, String name, final Object object) {
-        super(prefix, name, object, new DelegatingNamespaceFactory.Builder().addDelegate(STEP_METAS, new StepMetasNamespace.Factory()).build(),
+    public TransMetaNamespace(Vertx vertx, String prefix, String name, final Object object) {
+        super(vertx, prefix, name, object, new DelegatingNamespaceFactory.Builder().addDelegate(STEP_METAS, new StepMetasNamespace.Factory()).build(),
                 new BeanMethodMapping.Builder(TransMeta.class).addSelfManagingProperty(STEP_METAS).addGetterMethod(STEP_METAS, GET_STEPS).build(), new ActionHandlerMap.Builder().addActionHandler("start", new ActionHandler() {
                     @Override
                     public boolean handle(Message<JsonObject> message) throws ActionException {
                         TransMeta transMeta = (TransMeta) object;
                         Trans trans = new Trans(transMeta);
+                        trans.addTransListener(new TransListener() {
+                            @Override
+                            public void transStarted(Trans trans) throws KettleException {
+
+                            }
+
+                            @Override
+                            public void transActive(Trans trans) {
+
+                            }
+
+                            @Override
+                            public void transFinished(Trans trans) throws KettleException {
+
+                            }
+                        });
                         try {
                             trans.execute(new String[]{});
                             message.reply(SUCCESSFULLY_STARTED_TRANSFORMATION + transMeta.getName());
@@ -43,8 +61,8 @@ public class TransMetaNamespace extends ActionBeanNamespace {
     public static class Factory implements NamespaceFactory {
 
         @Override
-        public Namespace create(String prefix, String name, Object object) {
-            return new TransMetaNamespace(prefix, name, object);
+        public Namespace create(Vertx vertx, String prefix, String name, Object object) {
+            return new TransMetaNamespace(vertx, prefix, name, object);
         }
     }
 }

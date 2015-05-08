@@ -6,6 +6,7 @@ import com.github.brosander.kettle.vertx.namespace.factories.BeanMethodMapping;
 import com.github.brosander.kettle.vertx.namespace.factories.NamespaceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Vertx;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -23,8 +24,8 @@ public class BeanNamespace extends BaseNamespace {
     private final Map<String, Method> propertyMap;
     private final NamespaceFactory namespaceFactory;
 
-    public BeanNamespace(String prefix, String name, Object object, NamespaceFactory namespaceFactory, BeanMethodMapping beanMethodMapping) {
-        super(prefix, name);
+    public BeanNamespace(Vertx vertx, String prefix, String name, Object object, NamespaceFactory namespaceFactory, BeanMethodMapping beanMethodMapping) {
+        super(vertx, prefix, name);
         this.object = object;
         this.selfManagingProperties = beanMethodMapping.getSelfManagingProperties();
         this.namespaceFactory = namespaceFactory;
@@ -37,14 +38,14 @@ public class BeanNamespace extends BaseNamespace {
             return null;
         }
         if (selfManagingProperties.contains(name)) {
-            return namespaceFactory.create(getChildPrefix(), name, object);
+            return namespaceFactory.create(getVertx(), getChildPrefix(), name, object);
         }
         Method getter = propertyMap.get(name);
         if (getter == null) {
             return null;
         }
         try {
-            return namespaceFactory.create(getChildPrefix(), name, getter.invoke(object));
+            return namespaceFactory.create(getVertx(), getChildPrefix(), name, getter.invoke(object));
         } catch (Exception e) {
             LOGGER.error("Unable to invoke " + getter + " on " + object);
         }

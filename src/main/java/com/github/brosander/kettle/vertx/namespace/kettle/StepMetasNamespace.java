@@ -6,6 +6,7 @@ import com.github.brosander.kettle.vertx.namespace.generic.ActionHandlerMap;
 import com.github.brosander.kettle.vertx.namespace.generic.ActionNamespace;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
+import org.vertx.java.core.Vertx;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,8 +19,8 @@ public class StepMetasNamespace extends ActionNamespace {
     private final TransMeta transMeta;
     private final NamespaceFactory namespaceFactory;
 
-    public StepMetasNamespace(String prefix, String name, TransMeta transMeta) {
-        super(prefix, name, new ActionHandlerMap.Builder().build());
+    public StepMetasNamespace(Vertx vertx, String prefix, String name, TransMeta transMeta) {
+        super(vertx, prefix, name, new ActionHandlerMap.Builder().build());
         this.transMeta = transMeta;
         this.namespaceFactory = new StepMetaNamespace.Factory();
     }
@@ -28,7 +29,7 @@ public class StepMetasNamespace extends ActionNamespace {
     public Namespace getChild(String name) {
         for (StepMeta stepMeta : transMeta.getSteps()) {
             if (name.equals(stepMeta.getName())) {
-                return namespaceFactory.create(getChildPrefix(), name, stepMeta);
+                return namespaceFactory.create(getVertx(), getChildPrefix(), name, stepMeta);
             }
         }
         return null;
@@ -47,8 +48,8 @@ public class StepMetasNamespace extends ActionNamespace {
     public static class Factory implements NamespaceFactory {
 
         @Override
-        public Namespace create(String prefix, String name, Object object) {
-            return new StepMetasNamespace(prefix, name, (TransMeta) object);
+        public Namespace create(Vertx vertx, String prefix, String name, Object object) {
+            return new StepMetasNamespace(vertx, prefix, name, (TransMeta) object);
         }
     }
 }
