@@ -12,16 +12,18 @@ import static org.vertx.testtools.VertxAssert.*
 // The test methods must being with "test"
 
 def testCreateTransMetaFilename() {
+    vertx.eventBus.registerHandler(TransMetaNamespace.KETTLE_VERTICAL_TRANS_STATUS, { message ->
+        if (message.body().type == TransMetaNamespace.FINISHED) {
+            testComplete()
+        }
+    })
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr', 'namespace': [RootNamespace.TRANS_METAS]], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
             vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['action': 'start', 'namespace': [RootNamespace.TRANS_METAS, 'newTrans']], { reply2 ->
-                try {
-                    assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetaNamespace.SUCCESSFULLY_STARTED_TRANSFORMATION))
-                } finally {
-                    testComplete()
-                }
+                assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetaNamespace.SUCCESSFULLY_STARTED_TRANSFORMATION))
             })
+
         } catch (Exception e) {
             handleThrowable(e)
         }

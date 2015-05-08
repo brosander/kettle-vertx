@@ -20,18 +20,22 @@ import java.util.HashMap;
  */
 public class KettleVerticle extends Verticle {
     public static final String KETTLE_VERTICLE = "kettle-verticle";
-    private final Namespace rootNamespace;
+    private Namespace rootNamespace;
 
     public KettleVerticle() {
         this(null);
     }
 
     public KettleVerticle(Namespace rootNamespace) {
-        this.rootNamespace = rootNamespace == null ? new RootNamespace(vertx, new HashMap<String, Object>()) : rootNamespace;
+        super();
+        this.rootNamespace = rootNamespace;
     }
 
     @Override
     public void start(Future<Void> startedResult) {
+        if (rootNamespace == null) {
+            rootNamespace = new RootNamespace(vertx, new HashMap<String, Object>());
+        }
         try {
             KettleClientEnvironment.init();
             KettleEnvironment.init();
