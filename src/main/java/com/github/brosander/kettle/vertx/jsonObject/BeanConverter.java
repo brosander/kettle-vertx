@@ -51,12 +51,16 @@ public class BeanConverter<T> {
     }
 
     public static <T> BeanConverter<T> forClass(Class<T> clazz) {
+        return forClass(clazz, new HashSet<String>());
+    }
+
+    public static <T> BeanConverter<T> forClass(Class<T> clazz, Set<String> ignoredMethods) {
         Map<String, Method> beanMethods = new HashMap<String, Method>();
         for (Method method : clazz.getMethods()) {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes == null || parameterTypes.length == 0) {
                 String methodName = method.getName();
-                if (methodName.startsWith(GET) && methodName.length() > GET_LENGTH && isAcceptable(method.getReturnType())) {
+                if (!ignoredMethods.contains(methodName) && methodName.startsWith(GET) && methodName.length() > GET_LENGTH && isAcceptable(method.getReturnType())) {
                     StringBuilder name = new StringBuilder(methodName.substring(GET_LENGTH, GET_LENGTH + 1).toLowerCase());
                     if (methodName.length() > GET_LENGTH + 1) {
                         name.append(methodName.substring(GET_LENGTH + 1));

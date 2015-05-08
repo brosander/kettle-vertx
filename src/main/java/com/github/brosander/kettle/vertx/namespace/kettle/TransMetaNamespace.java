@@ -19,6 +19,8 @@ import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +55,7 @@ public class TransMetaNamespace extends ActionBeanNamespace {
                         executions.put(transId, trans);
                         trans.addTransListener(new TransListener() {
                             private final EventBus eventBus = vertx.eventBus();
-                            private final BeanConverter<Result> resultBeanConverter = BeanConverter.forClass(Result.class);
+                            private final BeanConverter<Result> resultBeanConverter = BeanConverter.forClass(Result.class, new HashSet<String>(Arrays.asList("getXML")));
 
                             @Override
                             public void transStarted(Trans trans) throws KettleException {

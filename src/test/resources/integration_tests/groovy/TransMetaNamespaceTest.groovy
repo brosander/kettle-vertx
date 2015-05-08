@@ -15,6 +15,10 @@ def testCreateTransMetaFilename() {
     vertx.eventBus.registerHandler(TransMetaNamespace.KETTLE_VERTICAL_TRANS_STATUS, { message ->
         if (message.body().type == TransMetaNamespace.FINISHED) {
             testComplete()
+        } else if (message.body().type == TransMetaNamespace.STARTED) {
+
+        } else {
+            handleThrowable(new Exception("We should only get started and finished notifications"))
         }
     })
     vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr', 'namespace': [RootNamespace.TRANS_METAS]], { reply ->
