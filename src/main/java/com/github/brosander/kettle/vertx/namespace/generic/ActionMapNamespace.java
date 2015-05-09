@@ -13,10 +13,18 @@ import java.util.Map;
  * Created by bryan on 4/18/15.
  */
 public class ActionMapNamespace extends MapNamespace {
-    private final ActionHandler actionHandler;
+    private ActionHandler actionHandler;
+
+    public ActionMapNamespace(Vertx vertx, String prefix, String name, Map map, NamespaceFactory namespaceFactory) {
+        this(vertx, prefix, name, map, namespaceFactory, null);
+    }
 
     public ActionMapNamespace(Vertx vertx, String prefix, String name, Map map, NamespaceFactory namespaceFactory, ActionHandler actionHandler) {
         super(vertx, prefix, name, map, namespaceFactory);
+        this.actionHandler = actionHandler;
+    }
+
+    public void setActionHandler(ActionHandler actionHandler) {
         this.actionHandler = actionHandler;
     }
 

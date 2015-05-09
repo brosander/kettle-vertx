@@ -2,14 +2,16 @@ package integration_tests.groovy
 
 import com.github.brosander.kettle.vertx.KettleVerticle
 import com.github.brosander.kettle.vertx.namespace.kettle.RootNamespace
-import com.github.brosander.kettle.vertx.namespace.kettle.TransMetaNamespace
-import com.github.brosander.kettle.vertx.namespace.kettle.TransMetasNamespace
+import com.github.brosander.kettle.vertx.namespace.kettle.trans.TransMetaNamespace
+import com.github.brosander.kettle.vertx.namespace.kettle.trans.TransMetasNamespace
 import org.vertx.groovy.testtools.VertxTests
 
 import static org.vertx.testtools.VertxAssert.*
 
 // And import static the VertxTests script
 // The test methods must being with "test"
+
+transMetasAddress = KettleVerticle.KETTLE_VERTICLE + "." + RootNamespace.TRANS_METAS
 
 def testCreateTransMetaFilename() {
     vertx.eventBus.registerHandler(TransMetaNamespace.KETTLE_VERTICAL_TRANS_STATUS, { message ->
@@ -21,13 +23,16 @@ def testCreateTransMetaFilename() {
             handleThrowable(new Exception("We should only get started and finished notifications"))
         }
     })
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr', 'namespace': [RootNamespace.TRANS_METAS]], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
-            vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['action': 'start', 'namespace': [RootNamespace.TRANS_METAS, 'newTrans']], { reply2 ->
-                assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetaNamespace.SUCCESSFULLY_STARTED_TRANSFORMATION))
+            vertx.eventBus.send(transMetasAddress + ".newTrans", ['action': 'start'], { reply2 ->
+                try {
+                    assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetaNamespace.SUCCESSFULLY_STARTED_TRANSFORMATION))
+                } catch (Exception e) {
+                    handleThrowable(e)
+                }
             })
-
         } catch (Exception e) {
             handleThrowable(e)
         }

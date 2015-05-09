@@ -1,4 +1,4 @@
-package com.github.brosander.kettle.vertx.namespace.kettle;
+package com.github.brosander.kettle.vertx.namespace.kettle.trans;
 
 import com.github.brosander.kettle.vertx.namespace.ActionException;
 import com.github.brosander.kettle.vertx.namespace.ActionHandler;
@@ -25,16 +25,22 @@ public class TransMetasNamespace extends ActionMapNamespace {
     public static final String FILENAME = "filename";
     public static final String MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE = "Must specify filename to load for filename trans create";
     public static final String ERROR_LOADING_TRANSFORMATION = "Error loading transformation ";
+    public static final String TRANSFORMATION = "Transformation ";
+    public static final String ALREADY_EXISTS = " already exists";
 
-    public TransMetasNamespace(Vertx vertx, String prefix, String name, final Map<String, TransMeta> transMetaMap) {
-        super(vertx, prefix, name, transMetaMap, new TransMetaNamespace.Factory(), new ActionHandlerMap.Builder().addActionHandler("create", new ActionHandler() {
+    public TransMetasNamespace(Vertx vertx, String prefix, String name, Map<String, TransMeta> transMetaMap) {
+        super(vertx, prefix, name, transMetaMap, new TransMetaNamespace.Factory());
+        setActionHandler(new ActionHandlerMap.Builder().addActionHandler("create", new ActionHandler() {
 
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {
-                TransMeta transMeta = new TransMeta();
                 String transName = getTransName(message);
+                if (containsKey(transName)) {
+                    throw new ActionException(500, TRANSFORMATION + transName + ALREADY_EXISTS);
+                }
+                TransMeta transMeta = new TransMeta();
                 transMeta.setName(transName);
-                transMetaMap.put(transName, transMeta);
+                put(transName, transMeta);
                 message.reply(SUCCESSFULLY_CREATED_TRANS_META + transName);
                 return true;
             }
@@ -46,11 +52,14 @@ public class TransMetasNamespace extends ActionMapNamespace {
                 if (filename == null || filename.length() == 0) {
                     throw new ActionException(400, MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE);
                 }
+                String transName = getTransName(message);
+                if (containsKey(transName)) {
+                    throw new ActionException(500, TRANSFORMATION + transName + ALREADY_EXISTS);
+                }
                 try {
                     TransMeta value = new TransMeta(filename);
-                    String transName = getTransName(message);
                     value.setName(transName);
-                    transMetaMap.put(transName, value);
+                    put(transName, value);
                     message.reply(SUCCESSFULLY_CREATED_TRANS_META + transName);
                     return true;
                 } catch (KettleException e) {
@@ -62,8 +71,7 @@ public class TransMetasNamespace extends ActionMapNamespace {
             @Override
             public boolean handle(Message<JsonObject> message) throws ActionException {
                 String transName = getTransName(message);
-                TransMeta remove = transMetaMap.remove(transName);
-                if (remove == null) {
+                if (!remove(transName)) {
                     throw new ActionException(404, TRANS_META_NOT_FOUND + transName);
                 } else {
                     message.reply(SUCCESSFULLY_REMOVED_TRANS_META + transName);
@@ -73,7 +81,7 @@ public class TransMetasNamespace extends ActionMapNamespace {
         }).build());
     }
 
-    private static String getTransName(Message<JsonObject> message) throws ActionException {
+    public static String getTransName(Message<JsonObject> message) throws ActionException {
         String name = message.body().getString("name");
         if (name == null || name.length() == 0) {
             throw new ActionException(400, MUST_SPECIFY_NAME_TO_OPERATE_ON);

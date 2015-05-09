@@ -9,7 +9,9 @@
 
 
 import com.github.brosander.kettle.vertx.KettleVerticle
-import com.github.brosander.kettle.vertx.namespace.kettle.TransMetasNamespace
+import com.github.brosander.kettle.vertx.namespace.BaseNamespace
+import com.github.brosander.kettle.vertx.namespace.kettle.RootNamespace
+import com.github.brosander.kettle.vertx.namespace.kettle.trans.TransMetasNamespace
 import org.vertx.groovy.testtools.VertxTests
 
 import static org.vertx.testtools.VertxAssert.*
@@ -17,11 +19,13 @@ import static org.vertx.testtools.VertxAssert.*
 // And import static the VertxTests script
 // The test methods must being with "test"
 
+transMetasAddress = KettleVerticle.KETTLE_VERTICLE + "." + RootNamespace.TRANS_METAS
+
 def testCreateTransMeta() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'create', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'create'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
-            vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'delete', 'namespace': ['transMetas']], { reply2 ->
+            vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'delete'], { reply2 ->
                 try {
                     assertTrue("Got " + reply2.body().toString(), reply2.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_REMOVED_TRANS_META))
                 } finally {
@@ -35,7 +39,7 @@ def testCreateTransMeta() {
 }
 
 def testCreateTransMetaFilenameNoFilename() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'loadFile'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.MUST_SPECIFY_FILENAME_TO_LOAD_FOR_FILENAME_TRANS_CREATE))
         } finally {
@@ -45,7 +49,7 @@ def testCreateTransMetaFilenameNoFilename() {
 }
 
 def testCreateTransMetaFilenameNoFile() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'fake_file.ktr', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'fake_file.ktr'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.ERROR_LOADING_TRANSFORMATION))
         } finally {
@@ -55,7 +59,7 @@ def testCreateTransMetaFilenameNoFile() {
 }
 
 def testCreateTransMetaFilename() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'newTrans', 'action': 'loadFile', 'filename': 'src/test/resources/transformations/test.ktr'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().toString().startsWith(TransMetasNamespace.SUCCESSFULLY_CREATED_TRANS_META))
         } finally {
@@ -65,7 +69,7 @@ def testCreateTransMetaFilename() {
 }
 
 def testDeleteTransMetaNotExisting() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['name': 'nonExistentTrans', 'action': 'delete', 'namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, ['name': 'nonExistentTrans', 'action': 'delete'], { reply ->
         try {
             assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.TRANS_META_NOT_FOUND))
         } finally {
@@ -75,9 +79,9 @@ def testDeleteTransMetaNotExisting() {
 }
 
 def testNoName() {
-    vertx.eventBus.send(KettleVerticle.KETTLE_VERTICLE, ['namespace': ['transMetas']], { reply ->
+    vertx.eventBus.send(transMetasAddress, [:], { reply ->
         try {
-            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(TransMetasNamespace.NO_HANDLER_FOUND_IN_NAMESPACE))
+            assertTrue("Got " + reply.body().toString(), reply.body().getMessage().startsWith(BaseNamespace.NO_HANDLER_FOUND_AT_ADDRESS + transMetasAddress + BaseNamespace.FOR_MESSAGE))
         } finally {
             testComplete()
         }

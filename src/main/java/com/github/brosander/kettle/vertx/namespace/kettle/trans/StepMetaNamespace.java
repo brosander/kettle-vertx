@@ -1,4 +1,4 @@
-package com.github.brosander.kettle.vertx.namespace.kettle;
+package com.github.brosander.kettle.vertx.namespace.kettle.trans;
 
 import com.github.brosander.kettle.vertx.namespace.Namespace;
 import com.github.brosander.kettle.vertx.namespace.factories.BeanMethodMapping;

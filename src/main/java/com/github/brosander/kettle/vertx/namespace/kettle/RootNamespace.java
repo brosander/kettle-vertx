@@ -2,6 +2,7 @@ package com.github.brosander.kettle.vertx.namespace.kettle;
 
 import com.github.brosander.kettle.vertx.namespace.factories.DelegatingNamespaceFactory;
 import com.github.brosander.kettle.vertx.namespace.generic.MapNamespace;
+import com.github.brosander.kettle.vertx.namespace.kettle.trans.TransMetasNamespace;
 import org.vertx.java.core.Vertx;
 
 import java.util.HashMap;
@@ -13,8 +14,8 @@ import java.util.Map;
 public class RootNamespace extends MapNamespace {
     public static final String TRANS_METAS = "transMetas";
 
-    public RootNamespace(Vertx vertx, Map<String, Object> map) {
-        super(vertx, null, null, prepMap(map), new DelegatingNamespaceFactory.Builder().addDelegate(TRANS_METAS, new TransMetasNamespace.Factory()).build());
+    public RootNamespace(Vertx vertx, String name, Map<String, Object> map) {
+        super(vertx, null, name, prepMap(map), new DelegatingNamespaceFactory.Builder().addDelegate(TRANS_METAS, new TransMetasNamespace.Factory()).build());
     }
 
     private static final Map<String, Object> prepMap(Map<String, Object> map) {
